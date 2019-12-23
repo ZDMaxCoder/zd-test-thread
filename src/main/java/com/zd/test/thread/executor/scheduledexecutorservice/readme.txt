@@ -1,0 +1,13 @@
+Java中的计划任务Timer工具类提供了以计时器或计划任务的功能来实现按指定时间或时间间隔执行任务，但由于Timer工具类并不是以池pool，而是以
+队列的方式来管理线程的，所以在高并发的情况下运行效率较低，在JDK1.5之后提供了ScheduledExecutorService对象来解决效率与定时任务的功能。
+
+接口ScheduledExecutor的主要作用是将定时任务和线程池功能结合，该接口的一个主要实现类是ScheduledThreadPoolExecutor，该类还是ThreadPoolExecutor的子类。
+
+ScheduledThreadPoolExecutor继承了ThreadPoolExecutor，通过源码可以看到ScheduledThreadPoolExecutor的调度是通过
+    构造了一个基于二叉堆（堆有序的完全二叉树）的优先队列用来存储延迟对象ScheduledFutureTask(该task实现了Runnable和Delayed接口)
+    堆顶存放时间延时时间最短的（即队列中最先被执行的task），在队列中poll时直接获取堆顶元素，在获取时会通过Delayed接口的getDelay()判断是否已经达到延时时间
+    如果达到，则返回堆顶元素，如果不达到，则返回null；
+    对于周期性的Task在执行完一次后会再次入队。
+
+public interface Delayed extends Comparable<Delayed>
+    所有Delayed实现类必须实现getDelay和compareTo方法，一般用于延时队列；
